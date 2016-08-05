@@ -4,12 +4,14 @@
 # - Fedora Live Spin with Fluxbox desktop 
 #
 # Maintainer(s):
-# - Boyd Kelly       <bkkelly@gmail.com>
+# - Boyd Kelly       <bkelly AT coastsystems  DOT .net>
+
+selinux --permissive
+services --disabled=NetworkManager,ModemManager,network  --enabled=wicd
 
 %include fedora-live-base.ks
 %include fedora-live-minimization.ks
 %include fedora-fluxbox-packages.ks
-#%include fedora-repo-rawhide.ks
 selinux --permissive
 
 %post
@@ -39,10 +41,11 @@ mkdir -p /home/liveuser/.fluxbox/backgrounds /home/liveuser/.fluxbox/pixmaps  /h
 cp /usr/share/fluxbox/* /home/liveuser/.fluxbox/
 cp /usr/share/fluxbox/styles/Nyz /home/liveuser/.fluxbox/styles/Fedora-Nyz
 cp -pr /usr/share/fluxbox/styles/bloe /home/liveuser/.fluxbox/styles/Fedora-bloe
+#Check these
+
 sed -i 's/^menu.frame.justify/menu.frame.justify\tleft/g' /home/liveuser/.fluxbox/styles/Fedora-Nyz
 sed -i 's/session.styleFile/session.stylefile\t~/.fluxbox/styles/Fedora-Nyz' /home/liveuser/.fluxbox/init
 echo "session.appsFile: ~/.fluxbox/apps" >> /home/liveuser/.fluxbox/init
-
 
 cat > /home/liveuser/.fluxbox/startup << FOE
 #!/bin/sh
@@ -63,6 +66,10 @@ xmodmap "$HOME/.Xmodmap"
 # wmsmixer -w &
 # fbdesk &
 
+[ -f /usr/bin/xcompmgr ] && xcompmgr -f &
+/usr/bin/plank &
+nitrogen --restore &
+
 exec fluxbox
 # or if you want to keep a log:
 # exec fluxbox -log "$fluxdir/log"
@@ -73,6 +80,8 @@ touch /home/liveuser/.fluxbox/usermenu
 
 #Fix bug in fbgenerate menu
 sed -i 's/\/share\/fluxbox/\/usr\/share\/fluxbox/g' /home/liveuser/.fluxbox/menu
+#replace liveuser with ~/. in fluxbox-generate menu
+
 
 #Put some sysadmin stuff into fluxbox menu
 
@@ -87,7 +96,8 @@ cat > /home/liveuser/.fluxbox/menu_sysconfg << FOE
 [end]
 FOE
 
-echo "[include]	(~/.fluxbox/menu_sysconfig)" >> /home/liveuser/.fluxbox/usermenu
+echo "[include]	(~/.fluxbox/menu_sysconfig)" >> /home/liveuser/.fluxbox/menu
+echo "[include]	(~/.fluxbox/usermenu)" >> /home/liveuser/.fluxbox/menu
 
 #Plank
 #The directories...
@@ -140,8 +150,9 @@ cat > /home/liveuser/.config/plank/dock1/launchers.txt << FOE
 gvim
 emacs
 mate-terminal
-firefox
+chrome
 system-config-date
+lxappearance
 liveinst
 FOE
 
@@ -210,7 +221,7 @@ gtk-application-prefer-dark-theme=0
 gtk-modules=pk-gtk-module:canberra-gtk-module
 FOE
 
-#fbdesk
+#fbdesk (doesn't work on my laptop...  highdpi???)
 cat > /home/liveuser/.fluxbox/fbdesk.icons << FOE
 [Desktop Entry]
 Icon=/usr/share/icons/hicolor/256x256/apps/anaconda.png
@@ -222,18 +233,20 @@ FOE
 
 #We use the command line a lot in fluxbox
 cp -pr /etc/skel/. /home/liveuser/
+cp -pr /home/liveuser/. /etc/skel/
 
-#wicd doesn't get enabled on install???
-systemctl enable wicd.service
 #exclude NetworkManger in fedora-fluxbox.ks does't seem to work
-rpm -e --nodeps NetworkManager-* --force
-rpm -e --nodeps NetworkManager --force
+#rpm -e --nodeps NetworkManager-* --force
+#rpm -e --nodeps NetworkManager --force
 
 # this goes at the end after all other changes. 
 chown -R liveuser:liveuser /home/liveuser
 restorecon -R /home/liveuser
 
+
 EOF
+mount -t nfs4 localhost:/bkelly/ /mnt
+echo fluxbox-spin  > /mnt/install/fluxbox-`date`
 
 %end
 
