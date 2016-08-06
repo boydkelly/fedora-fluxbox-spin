@@ -14,6 +14,7 @@ wicd-curses
 wicd-gtk
 lxqt-sudo
 plank
+plank-docklets
 lightdm
 lxappearance
 abattis-cantarell-fonts

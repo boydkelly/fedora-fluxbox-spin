@@ -66,9 +66,15 @@ xmodmap "$HOME/.Xmodmap"
 # wmsmixer -w &
 # fbdesk &
 
+#[ -f /usr/libexec/gnome-settings-daemon ] && gnome-settings-daemon &
+
+
+[ -f /usr/bin/nitrogen ] && nitrogen --restore &
 [ -f /usr/bin/xcompmgr ] && xcompmgr -f &
 /usr/bin/plank &
-nitrogen --restore &
+/usr/bin/udiskie &
+
+[ -f /usr/libexec/polkit-gnome-authentication-agent-1 ]  && /usr/lib/exec/polkit-gnome-authentication-agent-1 &
 
 exec fluxbox
 # or if you want to keep a log:
@@ -131,26 +137,32 @@ cat > /usr/local/bin/plank_config.sh << \FOE
 DOCK=/home/liveuser/".config/plank/dock1"
 LAUNCHERS="launchers.txt"
 [ ! -d $DOCK/launchers ] &&  mkdir -p $DOCK/launchers
+[ ! -f $DOCK/$LAUNCHERS ] && echo plank > $DOCK/$LAUNCHERS
 
 cd $DOCK/launchers || exit 1
 
 readarray DOCKITEMS < $DOCK/$LAUNCHERS
 for i in ${DOCKITEMS[@]};do
-    echo > $i.dockitem
-    echo [PlankItemsDockItemPreferences] >> $i.dockitem
-    echo "Launcher=file:///usr/share/applications/$i.desktop" >> $i.dockitem
-    DOCKITEMS[$i]=`echo ${DOCKITEMS[$i]} | xargs`.dockitem
+	echo > $i.dockitem
+	echo [PlankItemsDockItemPreferences] >> $i.dockitem
+	echo "Launcher=file:///usr/share/applications/$i.desktop" >> $i.dockitem
+done
+
+for ((i=0; i<${#DOCKITEMS[@]}; i++)); do
+	DOCKITEMS[$i]=`echo ${DOCKITEMS[$i]} | xargs`.dockitem
+	#echo ${DOCKITEMS[$i]}
 done
 
 echo DockItems=${DOCKITEMS[@]} | sed -e "s/ /\;\;/g" >> $DOCK/settings
 FOE
+rm /home/liveuser/.config/plank/dock1/settings
 
 #Create launchers.txt for above script
 cat > /home/liveuser/.config/plank/dock1/launchers.txt << FOE
 gvim
 emacs
 mate-terminal
-chrome
+chromium
 system-config-date
 lxappearance
 liveinst
