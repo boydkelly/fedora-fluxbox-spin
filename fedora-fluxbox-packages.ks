@@ -7,16 +7,14 @@
 
 %packages
 
--NetworkManager
--NetworkManager-*
-wicd
-wicd-curses
-wicd-gtk
-lxqt-sudo
+#wicd
+#wicd-curses
+#wicd-gtk
+#lxqt-sudo
 plank
 plank-docklets
 lightdm
-lxappearance
+#lxappearance
 abattis-cantarell-fonts
 xcompmgr
 udiskie
@@ -27,7 +25,6 @@ mate-terminal
 vim-enhanced
 gvim
 #vim-x11
-#neovim
 tmux
 emacs
 f24-backgrounds-base
@@ -38,6 +35,13 @@ xorg-x11-apps
 xorg-x11-utils
 fbdesk
 anaconda-tui
+network-manager-applet
+#utilities
+#alacarte
+redhat-menus
+
+#apps
+alpine
 quodlibet
 
 # unlock default keyring. FIXME: Should probably be done in comps
@@ -48,8 +52,8 @@ wget
 rfkill
 curl 
 
--firefox
-chromium
+firefox
+#chromium
 elinks
 lynx
 system-config-printer
@@ -60,7 +64,10 @@ system-config-date
 -acpid
 -realmd                     # only seems to be used in GNOME
 -aspell-*                   # dictionaries are big
--NetworkManager*
+#-NetworkManager*
+#-NetworkManager-*
+#-NetworkManager
 -abrt-*
+
 %end
 

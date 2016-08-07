@@ -7,7 +7,7 @@
 # - Boyd Kelly       <bkelly AT coastsystems  DOT .net>
 
 selinux --permissive
-services --disabled=NetworkManager,ModemManager,network  --enabled=wicd
+#services --disabled=NetworkManager,ModemManager,network  --enabled=wicd
 
 %include fedora-live-base.ks
 %include fedora-live-minimization.ks
@@ -71,8 +71,10 @@ xmodmap "$HOME/.Xmodmap"
 
 [ -f /usr/bin/nitrogen ] && nitrogen --restore &
 [ -f /usr/bin/xcompmgr ] && xcompmgr -f &
-/usr/bin/plank &
+[ -f /usr/bin/plank ] && /usr/bin/plank &
 /usr/bin/udiskie &
+/usr/bin/nm-applet &
+
 
 [ -f /usr/libexec/polkit-gnome-authentication-agent-1 ]  && /usr/lib/exec/polkit-gnome-authentication-agent-1 &
 
@@ -102,14 +104,17 @@ cat > /home/liveuser/.fluxbox/menu_sysconfg << FOE
 [end]
 FOE
 
-echo "[include]	(~/.fluxbox/menu_sysconfig)" >> /home/liveuser/.fluxbox/menu
-echo "[include]	(~/.fluxbox/usermenu)" >> /home/liveuser/.fluxbox/menu
+#echo "[include]	(~/.fluxbox/menu_sysconfig)" >> /home/liveuser/.fluxbox/menu
+#echo "[include]	(~/.fluxbox/usermenu)" >> /home/liveuser/.fluxbox/menu
+
+fluxbox-xdg-menu -f /home/liveuser/.fluxbox/menu --theme=Fedora --with-icons
+#fluxbox-xdg-menu --with-icons --theme=Fedora --submenu --with-backgrounds --bg-path=/usr/share/backgrounds -f /home/liveuser/.fluxbox/menu
 
 #Plank
 #The directories...
 mkdir -p /home/liveuser/.config/plank/dock1/launchers
 
-cat > /home/liveuser/.config/plank/dock1/settings << FOE
+#cat > /home/liveuser/.config/plank/dock1/settings << FOE
 [PlankDockPreferences]
 CurrentWorkspaceOnly=false
 IconSize=20
@@ -159,12 +164,11 @@ rm /home/liveuser/.config/plank/dock1/settings
 
 #Create launchers.txt for above script
 cat > /home/liveuser/.config/plank/dock1/launchers.txt << FOE
-gvim
-emacs
-mate-terminal
-chromium
 system-config-date
-lxappearance
+emacs
+gvim
+mate-terminal
+firefox
 liveinst
 FOE
 
@@ -210,7 +214,6 @@ gtk-modules="pk-gtk-module:canberra-gtk-module"
 FOE
 
 mkdir -p /home/liveuser/.config/gtkrc-2.0
-
 mkdir -p /home/liveuser/.config/gtkrc-3.0
 cat > /home/liveuser/.config/gtkrc-3.0/settings.ini << FOE
 [Settings]
