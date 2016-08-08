@@ -7,21 +7,16 @@
 
 %packages
 
-#wicd
-#wicd-curses
-#wicd-gtk
-#lxqt-sudo
 plank
 plank-docklets
 lightdm
-#lxappearance
 abattis-cantarell-fonts
 xcompmgr
 udiskie
 nitrogen
 xterm
 mate-terminal
-#lx-terminal
+tilda
 vim-enhanced
 gvim
 #vim-x11
@@ -43,14 +38,21 @@ redhat-menus
 #apps
 alpine
 quodlibet
+sylpheed
+xchat
 
 # unlock default keyring. FIXME: Should probably be done in comps
 # gnome-keyring-pam #Maybe add if gnome stuff
 # Admin tools are handy to have
-@admin-tools
+#@admin-tools
 wget
 rfkill
 curl 
+powerline
+tmux-powerline
+vim-powerline
+powerline-docs
+
 
 firefox
 #chromium
