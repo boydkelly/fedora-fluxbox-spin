@@ -6,7 +6,7 @@
 # Maintainer(s):
 # - Boyd Kelly       <bkelly AT coastsystems  DOT .net>
 
-selinux --permissive
+
 #services --disabled=NetworkManager,ModemManager,network  --enabled=wicd
 
 %include fedora-live-base.ks
@@ -37,29 +37,39 @@ touch /home/liveuser/.Xdefaults
 ln -s /home/liveuser/.Xdefaults /home/liveuser/.Xresources
 
 # Fedora Fluxbox config
-mkdir -p /home/liveuser/.fluxbox/backgrounds /home/liveuser/.fluxbox/pixmaps  /home/liveuser/.fluxbox/styles
+mkdir -p /home/liveuser/.fluxbox/backgrounds /home/liveuser/.fluxbox/pixmaps  /home/liveuser/.fluxbox/styles/Adwaita/pixmaps
 cp /usr/share/fluxbox/* /home/liveuser/.fluxbox/
 
 #Style stuff
 cp /usr/share/fluxbox/styles/Nyz /home/liveuser/.fluxbox/styles/Fedora-Nyz
 cp -pr /usr/share/fluxbox/styles/bloe /home/liveuser/.fluxbox/styles/Fedora-bloe
 #Check these
-sed -i 's/^menu.frame.justify/menu.frame.justify\tleft/g' /home/liveuser/.fluxbox/styles/Fedora-Nyz
-sed -i 's/session.styleFile/session.stylefile\t~/.fluxbox/styles/Fedora-Nyz' /home/liveuser/.fluxbox/init
+sed -i 's/^menu.frame.justify/menu.frame.justify:\tleft/g' /home/liveuser/.fluxbox/styles/Fedora-Nyz
 
+#We need the Adwaita window decorations.
+#for x in `ls /usr/share/themes/Adwaita/gtk-2.0/assets/*.png`; do convert $x /home/liveuser/.fluxbox/styles/Adwaita/pixmaps/`basename -s .png $x`.xpm; done
+cp /usr/share/pixmaps/* /home/liveuser/.fluxbox/styles/Adwaita/pixmaps/
 
-cat > /home/liveuser/.fluxbox/styles/Adwaita << FOE
+cat > /home/liveuser/.fluxbox/styles/Adwaita/theme.cfg << FOE
 style.name:		Fluxbox-Adwaita
 style.author:		Boyd Kelly	
 style.date:		2016-08-07
 style.credits:		
 style.comment:          
 
+*.font:					Cantarell
+!font-size:				20
+*.frameWidth:         			0
+*.bevelWidth:         			0
+*.textColor:				#FFFFFF
+
+
 toolbar:				flat
 toolbar.textColor:			#FFFFFF
 toolbar.justify:			center
-toolbar.height:				50
+!toolbar.height:				30
 toolbar.borderColor:			#000000
+toolbar.borderWidth:			0
 toolbar.workspace:			flat
 toolbar.workspace.color:                #000000
 toolbar.workspace.textColor:		#FFFFFF
@@ -80,6 +90,7 @@ toolbar.clock.textColor:		#FFFFFF
 toolbar.button:				flat
 toolbar.button.color:                   #000000
 toolbar.button.picColor:		#FFFFFF
+toolbar.shaped:				false
 
 menu.title:				flat
 menu.title.color:			#393F3F
@@ -91,15 +102,16 @@ menu.frame.color:			#393F3F
 menu.frame.textColor:			#FFFFFF
 menu.frame.disableColor:		#000000
 menu.hilite:				flat
-menu.hilite.color:			#0C7CD5
+menu.hilite.color:			#4A5050
 menu.hilite.textColor:			#FFFFFF
 menu.itemHeight:			16
 menu.bevelWidth:			0
 menu.titleHeight:			4
 menu.borderColor:			#393F3F
-menu.borderWidth:			2
-menu.bullet:				empty
-menu.bullet.position:			Right
+menu.borderWidth:			5
+menu.bullet:				empty	
+menu.bullet.position:			right
+menu.roundCorners:			TopRight TopLeft BottomRight BottomLeft
 
 window.title.focus:			flat
 window.title.focus.color:               #E8E8E7
@@ -107,7 +119,7 @@ window.title.textColor:			#000000
 window.title.unfocus:			flat
 window.title.unfocus.color:             #E8E8E7 
 window.title.unfocus.text.color:        #000000
-window.title.height:			40
+!window.title.height:			30
 window.justify:				center
 window.label.focus.color:               #E8E8E7
 window.label.focus.textColor:		#000000
@@ -118,6 +130,7 @@ window.handle.focus:			flat
 window.handle.focus.color:		#E8E8E7
 window.handle.unfocus:			flat
 window.handle.unfocus.color:		#E8E8E7
+window.handleWidth:        	        5
 window.grip.focus:			flat
 window.grip.focus.color:		#E8E8E7
 window.grip.unfocus:			flat
@@ -135,15 +148,12 @@ window.tab.label.unfocus.textColor:     #000000
 window.tab.label.focus:                 flat solid
 window.tab.label.focus.color:           #d64937
 window.tab.label.focus.textColor:       #000000
+window.roundCorners:			TopRight TopLeft BottomRight BottomLeft
+window.maximize.pixmap:			maximize.png
+window.close.pixmap:			checkbox-unchecked.png.xpm
 
-window.handleWidth:        	        5
-*frameWidth:         			0
-*bevelWidth:         			0
-window.borderWidth:        		1
+slit.pixmap:				fedora_whitelogl.xmp
 FOE
-
-
-
 
 #missing init stuff.  put toolbar on top for now
 cat >> /home/liveuser/.fluxbox/init << FOE
@@ -158,8 +168,10 @@ session.screen0.toolbar.onhead:	1
 session.screen0.toolbar.alpha:	255
 session.screen0.toolbar.widthPercent:	100
 session.screen0.tooltipDelay:	500
+session.appsFile: 	~/.fluxbox/apps
+session.styleFile:	~/.fluxbox/styles/Adwaita
+session.styleOverlay:	~/.fluxbox/overlay
 FOE
-echo "session.appsFile: ~/.fluxbox/apps" >> /home/liveuser/.fluxbox/init
 
 
 #startup script
@@ -191,51 +203,40 @@ xmodmap "$HOME/.Xmodmap"
 [ -f /usr/bin/tilda ] && /usr/bin/tilda  &
 [ -f /usr/bin/udiskie ] && /usr/bin/udeskie &
 [ -f /usr/bin/nm-applet ] && /usr/bin/nm-applet &
-[ -f /usr/libexec/polkit-gnome-authentication-agent-1 ]  && /usr/libexec/polkit-gnome-authentication-agent-1 &
+#[ -f /usr/libexec/polkit-gnome-authentication-agent-1 ]  && /usr/libexec/polkit-gnome-authentication-agent-1 &
 
 # exec fluxbox
 # or if you want to keep a log:
 exec fluxbox -log "$fluxdir/log"
 FOE
 
-#Put some sysadmin stuff into fluxbox menu; not used for now
 
-cat > /home/liveuser/.fluxbox/menu_sysconfg << FOE
-[submenu] (System-config)
-	[exec] (Network) {system-config-network}
-	[exec] (Date) {system-config-date}
-	[exec] (Users) {system-config-users}
-	[exec] (Printers)	{system-config-printer}
-	[exec] (Keyboard)	{system-config-keyboard}
-	[exec] (Samba)	{system-config-samba}
-[end]
-FOE
+#then make a submenu with fluxbox-xdg-menu
+fluxbox-xdg-menu -f /home/liveuser/.fluxbox/usermenu --theme=Fedora --with-icons --submenu --with-backgrounds --bg-path=/usr/share/backgrounds
+#fluxbox-xdg-menu --with-icons --theme=Fedora --submenu --with-backgrounds --bg-path=/usr/share/backgrounds -f /home/liveuser/.fluxbox/menu
+#and include the xdg-menu in the usermenu
+#echo "[include]	(~/.fluxbox/xdg-menu)" >> /home/liveuser/.fluxbox/usermenu
 
-#echo "[include]	(~/.fluxbox/menu_sysconfig)" >> /home/liveuser/.fluxbox/menu
-#echo "[include]	(~/.fluxbox/usermenu)" >> /home/liveuser/.fluxbox/menu
 
-#Start with fluxbox-generate for the main menu
-touch /home/liveuser/.fluxbox/usermenu
+#Now with fluxbox-generate for the main menu
 /usr/bin/fluxbox-generate_menu -t mate-terminal -B -g -b /usr/bin/firefox -o /home/liveuser/.fluxbox/menu -u /home/liveuser/.fluxbox/usermenu
 
 #Fix bug in fbgenerate menu
 sed -i 's/\/share\/fluxbox/\/usr\/share\/fluxbox/g' /home/liveuser/.fluxbox/menu
 #todo: replace liveuser with ~/. in fluxbox-generate menu
 
-#then make a submenu with fluxbox-xdg-menu
-fluxbox-xdg-menu -f /home/liveuser/.fluxbox/xdg-menu --theme=Fedora --with-icons --submenu --with-backgrounds --bg-path=/usr/share/backgrounds
-#fluxbox-xdg-menu --with-icons --theme=Fedora --submenu --with-backgrounds --bg-path=/usr/share/backgrounds -f /home/liveuser/.fluxbox/menu
-#and include the xdg-menu in the usermenu
-echo "[include]	(~/.fluxbox/xdg-menu)" >> /home/liveuser/.fluxbox/usermenu
-
 
 #Plank
 #The directories...
 mkdir -p /home/liveuser/.config/plank/dock1/launchers
 
-#cat > /home/liveuser/.config/plank/dock1/settings << FOE
-#[PlankDockPreferences]
-#FOE
+cat > /home/liveuser/.config/plank/dock1/settings << FOE
+[PlankDockPreferences]
+Position=3
+Items=3
+ItemsAlignment=3
+Theme=Default
+FOE
 
 #script to configure plank items
 cat > /usr/local/bin/plank_config.sh << \FOE
@@ -258,10 +259,10 @@ for ((i=0; i<${#DOCKITEMS[@]}; i++)); do
 	DOCKITEMS[$i]=`echo ${DOCKITEMS[$i]} | xargs`.dockitem
 	#echo ${DOCKITEMS[$i]}
 done
-
+#Doesn't see to be used anymore.  Check out gsettings.
 echo DockItems=${DOCKITEMS[@]} | sed -e "s/ /\;\;/g" >> $DOCK/settings
 FOE
-rm /home/liveuser/.config/plank/dock1/settings
+#rm /home/liveuser/.config/plank/dock1/settings
 
 #Create launchers.txt for above script
 cat > /home/liveuser/.config/plank/dock1/launchers.txt << FOE
@@ -271,6 +272,7 @@ gvim
 mate-terminal
 firefox
 liveinst
+plank
 FOE
 
 #run it!
@@ -297,7 +299,7 @@ FOE
 cat > /home/liveuser/.gtkrc-2.0 << FOE
 include "~/.gtkrc-2.0.mine"
 gtk-theme-name="Adwaita"
-gtk-icon-theme-name="Adwaita"
+gtk-icon-theme-name="Fedora"
 gtk-font-name="Cantarell 11"
 gtk-cursor-theme-name="Adwaita"
 gtk-cursor-theme-size=48
@@ -316,10 +318,11 @@ FOE
 
 mkdir -p /home/liveuser/.config/gtkrc-2.0
 mkdir -p /home/liveuser/.config/gtkrc-3.0
+
 cat > /home/liveuser/.config/gtkrc-3.0/settings.ini << FOE
 [Settings]
 gtk-theme-name=Adwaita
-gtk-icon-theme-name=Adwaita
+gtk-icon-theme-name=Fedora
 gtk-font-name=Cantarell 11
 gtk-cursor-theme-name=Adwaita
 gtk-cursor-theme-size=48
@@ -467,17 +470,12 @@ FOE
 
 cp -pr /home/liveuser/. /etc/skel/
 
-
 # this goes at the end after all other changes. 
 chown -R liveuser:liveuser /home/liveuser
 restorecon -R /home/liveuser
-
 
 EOF
 mount -t nfs4 localhost:/bkelly/ /mnt
 echo fluxbox-spin  > /mnt/install/fluxbox
 
 %end
-
-
-

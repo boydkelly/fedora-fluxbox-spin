@@ -34,6 +34,7 @@ network-manager-applet
 #utilities
 #alacarte
 redhat-menus
+ImageMagick
 
 #apps
 alpine
@@ -66,9 +67,6 @@ system-config-date
 -acpid
 -realmd                     # only seems to be used in GNOME
 -aspell-*                   # dictionaries are big
-#-NetworkManager*
-#-NetworkManager-*
-#-NetworkManager
 -abrt-*
 
 %end
