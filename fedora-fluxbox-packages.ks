@@ -11,6 +11,11 @@
 -*-firmware
 -libcrypt
 libcrypt-nss
+#avoid an error on boot
+rpcbind 
+libcanberra-gtk2
+libcanberra-gtk3
+
 
 plank
 plank-docklets
