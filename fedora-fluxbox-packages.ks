@@ -7,6 +7,11 @@
 
 %packages
 
+-linux-firmware
+-*-firmware
+-libcrypt
+libcrypt-nss
+
 plank
 plank-docklets
 lightdm
@@ -16,13 +21,14 @@ udiskie
 nitrogen
 xterm
 mate-terminal
+glances
 tilda
 vim-enhanced
 gvim
 #vim-x11
 tmux
 emacs
-f24-backgrounds-base
+f25-backgrounds-base
 fedora-icon-theme
 fluxbox-vim-syntax
 xorg-x11-xinit
@@ -54,13 +60,12 @@ tmux-powerline
 vim-powerline
 powerline-docs
 
-
 firefox
 #chromium
 elinks
 lynx
-system-config-printer
-system-config-date
+#system-config-printer
+#system-config-date
 
 # save some space
 -autofs
@@ -68,6 +73,8 @@ system-config-date
 -realmd                     # only seems to be used in GNOME
 -aspell-*                   # dictionaries are big
 -abrt-*
+-linux-firmware
+-*-firmware
 
 %end
 

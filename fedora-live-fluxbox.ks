@@ -16,7 +16,7 @@ selinux --permissive
 
 %post
 
-cat >> /etc/rc.d/init.d/livesys << \EOF
+cat >> /etc/rc.d/init.d/livesys << EOF
 
 # create /etc/sysconfig/desktop (needed for installation)
 cat > /etc/sysconfig/desktop <<FOE
@@ -239,7 +239,7 @@ Theme=Default
 FOE
 
 #script to configure plank items
-cat > /usr/local/bin/plank_config.sh << \FOE
+cat > /usr/local/bin/plank_config.sh << FOE
 #!/bin/sh
 DOCK=/home/liveuser/".config/plank/dock1"
 LAUNCHERS="launchers.txt"
@@ -262,6 +262,7 @@ done
 #Doesn't see to be used anymore.  Check out gsettings.
 echo DockItems=${DOCKITEMS[@]} | sed -e "s/ /\;\;/g" >> $DOCK/settings
 FOE
+
 #rm /home/liveuser/.config/plank/dock1/settings
 
 #Create launchers.txt for above script
