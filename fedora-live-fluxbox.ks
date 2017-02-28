@@ -198,12 +198,12 @@ xmodmap "$HOME/.Xmodmap"
 #[ -f /usr/libexec/gnome-settings-daemon ] && gnome-settings-daemon &
 
 
-[ -f /usr/bin/nitrogen ] && nitrogen --restore &
 [ -f /usr/bin/xcompmgr ] && xcompmgr -f &
 [ -f /usr/bin/plank ] && /usr/bin/plank &
 [ -f /usr/bin/tilda ] && /usr/bin/tilda  &
 [ -f /usr/bin/udiskie ] && /usr/bin/udeskie &
 [ -f /usr/bin/nm-applet ] && /usr/bin/nm-applet &
+[ -f /usr/bin/nitrogen ] && nitrogen --restore &
 #[ -f /usr/libexec/polkit-gnome-authentication-agent-1 ]  && /usr/libexec/polkit-gnome-authentication-agent-1 &
 
 # exec fluxbox
@@ -242,24 +242,24 @@ cat > /usr/local/bin/plank_config.sh <<'FOE'
 #!/bin/sh
 DOCK=/home/liveuser/".config/plank/dock1"
 LAUNCHERS="launchers.txt"
-[ ! -d $DOCK/launchers ] &&  mkdir -p $DOCK/launchers
-[ ! -f $DOCK/$LAUNCHERS ] && echo plank > $DOCK/$LAUNCHERS
+[ ! -d \$DOCK/launchers ] &&  mkdir -p \$DOCK/launchers
+[ ! -f \$DOCK/$LAUNCHERS ] && echo plank > $DOCK/$LAUNCHERS
 
-cd $DOCK/launchers || exit 1
+cd \$DOCK/launchers || exit 1
 
-readarray DOCKITEMS < $DOCK/$LAUNCHERS
-for i in ${DOCKITEMS[@]};do
-	echo > $i.dockitem
-	echo [PlankItemsDockItemPreferences] >> $i.dockitem
-	echo "Launcher=file:///usr/share/applications/$i.desktop" >> $i.dockitem
+readarray DOCKITEMS < \$DOCK/\$LAUNCHERS
+for i in \${DOCKITEMS[@]};do
+	echo > \$i.dockitem
+	echo [PlankItemsDockItemPreferences] >> \$i.dockitem
+	echo "Launcher=file:///usr/share/applications/\$i.desktop" >> \$i.dockitem
 done
 
-for ((i=0; i<${#DOCKITEMS[@]}; i++)); do
-	DOCKITEMS[$i]=`echo ${DOCKITEMS[$i]} | xargs`.dockitem
+for ((i=0; i<\${#DOCKITEMS[@]}; i++)); do
+	DOCKITEMS[\$i]=\$(echo \${DOCKITEMS[\$i]} | xargs).dockitem
 	#echo ${DOCKITEMS[$i]}
 done
 #Doesn't see to be used anymore.  Check out gsettings.
-echo DockItems=${DOCKITEMS[@]} | sed -e "s/ /\;\;/g" >> $DOCK/settings
+echo DockItems=\${DOCKITEMS[@]} | sed -e "s/ /\;\;/g" >> \$DOCK/settings
 FOE
 
 #rm /home/liveuser/.config/plank/dock1/settings
@@ -285,15 +285,23 @@ mkdir -v -p /home/liveuser/.config/nitrogen/
 cat > /home/liveuser/.config/nitrogen/bg-saved.cfg << FOE
 [:0.0]
 file=/usr/share/backgrounds/default.png
-mode=5
+mode=4
 bgcolor=#000000
 FOE
 
 cat > /home/liveuser/.config/nitrogen/nitrogen.cfg << FOE
+[geometry]
+posx=0
+posy=0
+sizex=450
+sizey=500
+
 [nitrogen]
 view=list
+recurse=true
+sort=alpha
 icon_caps=false
-dir=/usr/share/backgrounds
+dirs=/usr/share/backgrounds;
 FOE
 
 #gtk settings
@@ -352,10 +360,10 @@ Pos= 600 500
 FOE
 
 #We use the command line a lot in fluxbox
-cp -r /etc/skel /home/liveuser/
+#cp -r /etc/skel /home/liveuser/
 echo "export TERM=/usr/bin/mate-terminal" >> /home/liveuser/.bash_profile
-cat > /home/liveuser/.bashrc << 'FOE'
-if [ -f $(which powerline-daemon) ]; then
+cat >> /home/liveuser/.bashrc << 'FOE'
+if [ -f \$(which powerline-daemon) ]; then
 	powerline-daemon -q
 	POWERLINE_BASH_CONTINUATION=1
 	POWERLINE_BASH_SELECT=1
@@ -468,6 +476,13 @@ start_fullscreen = false
 transparency = 0
 back_alpha = 26175
 FOE
+
+#maybe enter settings to /etc/skel manually? For new users...
+#will need .fluxbox files too
+#check for refs to liveuser
+rsync -aupr /home/liveuser/.config /etc/skel/
+rsync -aupr /home/liveuser/.fluxbox /etc/skel/
+chown -R root:root /etc/skel
 
 # this goes at the end after all other changes. 
 chown -R liveuser:liveuser /home/liveuser
