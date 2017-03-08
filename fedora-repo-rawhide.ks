@@ -1,0 +1,1 @@
+../spin-kickstarts/fedora-repo-rawhide.ks
