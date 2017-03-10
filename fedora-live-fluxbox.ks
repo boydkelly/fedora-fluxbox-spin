@@ -1,7 +1,7 @@
-# fedora-livecd-startx.ks
+# fedora-livecd-fluxbox.ks
 #
 # Description:
-# - Fedora Live Spin with Fluxbox i3 and sway!
+# - Fedora Live Spin with Fluxbox desktop 
 #
 # Maintainer(s):
 # - Boyd Kelly       <bkelly AT coastsystems  DOT .net>
@@ -11,26 +11,28 @@
 %include fedora-live-base.ks
 %include fedora-live-minimization.ks
 %include fedora-fluxbox-packages.ks
-%include fedora-startx-packages.ks
-%include fedora-rescue-packages.ks
 selinux --permissive
 
 %post
 
-
 cat >> /etc/rc.d/init.d/livesys << EOF
-
-
-cat > /home/liveuser/.bashrc << FOE
-setfont ter-v32n
-FOE
-
+mkdir /run/rpcbind
+chown rpc:rpc /run/rpcbind
 
 # create /etc/sysconfig/desktop (needed for installation)
 cat > /etc/sysconfig/desktop <<FOE
 PREFERRED=/usr/bin/startfluxbox
 DISPLAYMANAGER=/usr/sbin/lightdm
 FOE
+
+# set up lightdm autologin
+sed -i 's/^#autologin-user=.*/autologin-user=liveuser/' /etc/lightdm/lightdm.conf
+sed -i 's/^#autologin-user-timeout=.*/autologin-user-timeout=0/' /etc/lightdm/lightdm.conf
+#sed -i 's/^#show-language-selector=.*/show-language-selector=true/' /etc/lightdm/lightdm-gtk-greeter.conf
+
+# set Fluxbox as default session 
+sed -i 's/^#user-session=.*/user-session=fluxbox/' /etc/lightdm/lightdm.conf
+sed -i 's/^#autologin-session=.*/autologin-session=fluxbox/' /etc/lightdm/lightdm.conf
 
 #X config stuff
 touch /home/liveuser/.Xdefaults
@@ -40,8 +42,15 @@ ln -s /home/liveuser/.Xdefaults /home/liveuser/.Xresources
 # Fedora Fluxbox config
 mkdir -p /home/liveuser/.fluxbox/{backgrounds,pixmaps,styles/Adwaita/pixmaps}
 cp /usr/share/fluxbox/* /home/liveuser/.fluxbox/
+#but really why since root is copying anyways
+#chown -R liveuser:liveuser /home/liveuser/.fluxbox
 
 #Style stuff
+#cp /usr/share/fluxbox/styles/Nyz /home/liveuser/.fluxbox/styles/Fedora-Nyz
+#cp -pr /usr/share/fluxbox/styles/bloe /home/liveuser/.fluxbox/styles/Fedora-bloe
+#Check these
+#sed -i 's/^menu.frame.justify/menu.frame.justify:\tleft/g' /home/liveuser/.fluxbox/styles/Fedora-Nyz
+#should this not go into .fluxbox/pixmaps anyways?
 cp -v /usr/share/pixmaps/* /home/liveuser/.fluxbox/styles/Adwaita/pixmaps/
 
 cat > /home/liveuser/.fluxbox/styles/Adwaita/theme.cfg <<'FOE'
@@ -51,8 +60,6 @@ style.date:		2016-08-07
 style.credits:		
 style.comment:          
 
-background:				fullscreen
-background.pixmap:			/usr/share/backgrounds/default.png
 *.font:					Cantarell
 !font-size:				20
 *.frameWidth:         			0
@@ -144,6 +151,8 @@ window.tab.label.focus:                 flat solid
 window.tab.label.focus.color:           #d64937
 window.tab.label.focus.textColor:       #000000
 window.roundCorners:			TopRight TopLeft BottomRight BottomLeft
+window.maximize.pixmap:			maximize.png
+window.close.pixmap:			checkbox-unchecked.png.xpm
 slit.pixmap:				fedora_whitelogl.xmp
 FOE
 
@@ -189,18 +198,17 @@ xmodmap "$HOME/.Xmodmap"
 #[ -f /usr/libexec/gnome-settings-daemon ] && gnome-settings-daemon &
 
 
-nitrogen --restore &
-#[ -f /usr/bin/nitrogen ] && nitrogen --restore &
 [ -f /usr/bin/xcompmgr ] && xcompmgr -f &
 [ -f /usr/bin/plank ] && /usr/bin/plank &
 [ -f /usr/bin/tilda ] && /usr/bin/tilda  &
 [ -f /usr/bin/udiskie ] && /usr/bin/udeskie &
 [ -f /usr/bin/nm-applet ] && /usr/bin/nm-applet &
+[ -f /usr/bin/nitrogen ] && nitrogen --restore &
 #[ -f /usr/libexec/polkit-gnome-authentication-agent-1 ]  && /usr/libexec/polkit-gnome-authentication-agent-1 &
 
 # exec fluxbox
 # or if you want to keep a log:
-exec fluxbox -log "\$fluxdir/log"
+exec fluxbox -log "$fluxdir/log"
 FOE
 
 #then make a submenu with fluxbox-xdg-menu
@@ -210,8 +218,7 @@ fluxbox-xdg-menu -f /home/liveuser/.fluxbox/usermenu --theme=Fedora --with-icons
 #echo "[include]	(~/.fluxbox/xdg-menu)" >> /home/liveuser/.fluxbox/usermenu
 
 #Now with fluxbox-generate for the main menu
-export TERM=/usr/bin/mate-terminal
-/usr/bin/fluxbox-generate_menu -t \$TERM -g -b /usr/bin/firefox -w www.getfedora.org -o /home/liveuser/.fluxbox/menu -u /home/liveuser/.fluxbox/usermenu -su
+/usr/bin/fluxbox-generate_menu -t mate-terminal -g -b /usr/bin/firefox -w www.getfedora.org -o /home/liveuser/.fluxbox/menu -u /home/liveuser/.fluxbox/usermenu -su
 
 #Fix bug in fbgenerate menu
 sed -i 's/\/share\/fluxbox/\/usr\/share\/fluxbox/g' /home/liveuser/.fluxbox/menu
@@ -230,12 +237,13 @@ Theme=Default
 FOE
 
 #script to configure plank items
-cat > /usr/local/bin/plank_config.sh << 'FOE'
-#!/bin/bash
+#this doesn't work as the variables are lost in the livesys file
+cat > /usr/local/bin/plank_config.sh <<'FOE'
+#!/bin/sh
 DOCK=/home/liveuser/".config/plank/dock1"
 LAUNCHERS="launchers.txt"
 [ ! -d \$DOCK/launchers ] &&  mkdir -p \$DOCK/launchers
-[ ! -f \$DOCK/\$LAUNCHERS ] && echo plank > \$DOCK/\$LAUNCHERS
+[ ! -f \$DOCK/$LAUNCHERS ] && echo plank > $DOCK/$LAUNCHERS
 
 cd \$DOCK/launchers || exit 1
 
@@ -258,12 +266,14 @@ FOE
 
 #Create launchers.txt for above script
 cat > /home/liveuser/.config/plank/dock1/launchers.txt << FOE
+sylpheed
 emacs
 gvim
 mate-terminal
 firefox
 quodlibet
 liveinst
+plank
 FOE
 
 #run it!
@@ -295,8 +305,8 @@ dirs=/usr/share/backgrounds;
 FOE
 
 #gtk settings
-touch /home/liveuser/.gtkrc-2.0.mine
 cat > /home/liveuser/.gtkrc-2.0 << FOE
+include "~/.gtkrc-2.0.mine"
 gtk-theme-name="Adwaita"
 gtk-icon-theme-name="Fedora"
 gtk-font-name="Cantarell 11"
@@ -351,6 +361,7 @@ FOE
 
 #We use the command line a lot in fluxbox
 #cp -r /etc/skel /home/liveuser/
+echo "export TERM=/usr/bin/mate-terminal" >> /home/liveuser/.bash_profile
 cat >> /home/liveuser/.bashrc << 'FOE'
 if [ -f \$(which powerline-daemon) ]; then
 	powerline-daemon -q
@@ -466,13 +477,6 @@ transparency = 0
 back_alpha = 26175
 FOE
 
-#cat /etc/sway/config > /home/liveuser/.config/sway/config
-cp /etc/i3/config  /home/liveuser/.config/i3/
-%include hidpi.ks
-%include xorg.ks
-%include sway.ks
-
-
 #maybe enter settings to /etc/skel manually? For new users...
 #will need .fluxbox files too
 #check for refs to liveuser
@@ -485,7 +489,6 @@ chown -R liveuser:liveuser /home/liveuser
 restorecon -R /home/liveuser
 
 EOF
-
 mount -t nfs4 localhost:/bkelly/ /mnt
 echo $(date -I)-fluxbox-spin  > /mnt/install/fluxbox
 

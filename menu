@@ -1,0 +1,62 @@
+
+[begin] (Fluxbox)
+	[exec] (Web Browser) {htmlview}
+	[exec] (Email) {evolution}
+	[exec] (Terminal) {$TERM}
+	[exec] (Irc) {xchat}
+	[separator]
+
+	[submenu] (Applications) <> 
+		[submenu] (Accessories) <> 
+			[exec] (Disks) {gnome-disks} </usr/share/icons/hicolor/48x48/apps/gnome-disks.png> 
+			[exec] (Emacs) {emacs} </usr/share/icons/hicolor/48x48/apps/emacs.png> 
+			[exec] (Plank) {plank} </usr/share/icons/hicolor/48x48/apps/plank.svg> 
+			[exec] (Vi IMproved) {gvim} </usr/share/icons/hicolor/48x48/apps/gvim.png> 
+		[end]
+		[submenu] (Internet) <> 
+			[exec] (Firefox) {firefox} </usr/share/icons/hicolor/48x48/apps/firefox.png> 
+		[end]
+		[submenu] (Multimedia) <> 
+			[exec] (Ex Falso) {exfalso} </usr/share/pixmaps/exfalso.png> 
+			[exec] (Quod Libet) {quodlibet} </usr/share/pixmaps/quodlibet.png> 
+		[end]
+		[submenu] (System Tools) <> 
+			[exec] (Disk Management) {usermount} </usr/share/pixmaps/disks.png> 
+			[exec] (Fedora Release Notes) {xdg-open} </usr/share/icons/hicolor/48x48/apps/fedora-release-notes.png> 
+			[exec] (MATE Terminal) {mate-terminal} </usr/share/icons/gnome/48x48/apps/utilities-terminal.png> 
+			[exec] (SELinux Troubleshooter) {/usr/bin/sealert} </usr/share/icons/hicolor/48x48/apps/setroubleshoot_icon.png> 
+			[exec] (XTerm) {xterm} </usr/share/icons/hicolor/48x48/apps/xterm-color.png> 
+		[end]
+	[end]
+
+	[submenu] (Fluxbox Menu)
+		[config] (Configure)
+		[submenu] (System Styles) {Choose a style...}
+			[stylesdir] (/usr/share/fluxbox/styles)
+			[stylesdir] (/usr/share/commonbox/styles/)
+		[end]
+		[submenu] (User Styles) {Choose a style...}
+			[stylesdir] (~/.fluxbox/styles)
+		[end]
+		[workspaces]   (Workspace List)
+		[submenu] (Tools)
+			[exec] (Window name) {xprop WM_CLASS|cut -d " -f 2|xmessage -file - -center}
+			[exec] (Screenshot - JPG) {import screenshot.jpg && display -resize 50% screenshot.jpg}
+			[exec] (Screenshot - PNG) {import screenshot.png && display -resize 50% screenshot.png}
+			[exec] (Run) {fbrun }
+			[exec] (Regen Menu) {fluxbox-generate_menu --with-icons}
+		[end]
+		[submenu] (Window)
+			[restart] (kde) {startkde}
+			[restart] (openbox) {openbox}
+			[restart] (gnome) {gnome-session}
+		[end]
+		[exec] (Lock screen) {xscreensaver-command -lock}
+		[commanddialog] (Fluxbox Command)
+		[reconfig] (Reload config)
+		[restart] (Restart)
+		[separator]
+		[exit] (Exit)
+	[end]
+[end]
+

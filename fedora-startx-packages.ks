@@ -35,6 +35,7 @@ fluxbox-vim-syntax
 xorg-x11-xinit
 xorg-x11-apps
 xorg-x11-utils
+dbus-x11
 fbdesk
 anaconda-tui
 i3
@@ -49,6 +50,7 @@ network-manager-applet
 blueman
 sway
 glances
+roger
 procps-ng
 
 # unlock default keyring. FIXME: Should probably be done in comps
