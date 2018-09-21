@@ -1,0 +1,19 @@
+%packages
+@admin-tools
+-@firefox
+qutebrowser
+chromium
+zathura
+qt5-qtwebengine
+python3-qt5-webengine
+lxappearance
+fedora-icon-theme
+paper-icon-theme
+gvim
+emacs
+modem-manager-gui
+anki
+#mpv needs vulkan. otherwise disable
+mpv
+mesa-vulkan-drivers
+%end

@@ -1,1 +1,1 @@
-../spin-kickstarts/fedora-repo-not-rawhide.ks
+../fedora-kickstarts-28/fedora-repo-not-rawhide.ks

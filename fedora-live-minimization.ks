@@ -1,1 +1,1 @@
-../spin-kickstarts/fedora-live-minimization.ks
+../fedora-kickstarts/fedora-live-minimization.ks

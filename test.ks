@@ -1,2 +1,0 @@
-touch /home/liveuser/test
-

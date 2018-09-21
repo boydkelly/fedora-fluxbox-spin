@@ -1,51 +1,12 @@
-# fedora-livecd-fluxbox.ks
-#
-# Description:
-# - Fedora Live Spin with Fluxbox desktop 
-#
-# Maintainer(s):
-# - Boyd Kelly       <bkelly AT coastsystems  DOT .net>
-
-#services --disabled=NetworkManager,ModemManager,network  --enabled=wicd
-
-%include fedora-live-base.ks
-%include fedora-live-minimization.ks
-%include fedora-fluxbox-packages.ks
-selinux --permissive
 
 %post
-
-cat >> /etc/rc.d/init.d/livesys << EOF
-mkdir /run/rpcbind
-chown rpc:rpc /run/rpcbind
-
-# create /etc/sysconfig/desktop (needed for installation)
-cat > /etc/sysconfig/desktop <<FOE
-PREFERRED=/usr/bin/startfluxbox
-DISPLAYMANAGER=/usr/sbin/lightdm
-FOE
-
-# set up lightdm autologin
-sed -i 's/^#autologin-user=.*/autologin-user=liveuser/' /etc/lightdm/lightdm.conf
-sed -i 's/^#autologin-user-timeout=.*/autologin-user-timeout=0/' /etc/lightdm/lightdm.conf
-#sed -i 's/^#show-language-selector=.*/show-language-selector=true/' /etc/lightdm/lightdm-gtk-greeter.conf
-
-# set Fluxbox as default session 
-sed -i 's/^#user-session=.*/user-session=fluxbox/' /etc/lightdm/lightdm.conf
-sed -i 's/^#autologin-session=.*/autologin-session=fluxbox/' /etc/lightdm/lightdm.conf
-
 #X config stuff
-touch /home/liveuser/.Xdefaults
-ln -s /home/liveuser/.Xdefaults /home/liveuser/.Xresources
-#chown -R liveuser:liveuser /home/liveuser/.Xdefaults /home/liveuser/.Xresources
-
-%include fluxbox.ks
+touch /etc/skel/.Xdefaults
+ln -sr /etc/skel/.Xdefaults /etc/skel/.Xresources
 
 #We use the command line a lot in fluxbox
-#cp -r /etc/skel /home/liveuser/
-echo "export TERM=/usr/bin/mate-terminal" >> /home/liveuser/.bash_profile
-cat >> /home/liveuser/.bashrc << 'FOE'
-if [ -f \$(which powerline-daemon) ]; then
+cat >> /etc/skel/.bashrc << 'FOE'
+if [ -f $(which powerline-daemon) ]; then
 	powerline-daemon -q
 	POWERLINE_BASH_CONTINUATION=1
 	POWERLINE_BASH_SELECT=1
@@ -54,8 +15,8 @@ fi
 FOE
 
 #tilda config
-mkdir -v -p /home/liveuser/.config/tilda
-cat > /home/liveuser/.config/tilda/config_0 << FOE
+mkdir -v -p /etc/skel/.config/tilda
+cat > /etc/skel/.config/tilda/config_0 << FOE
 tilda_config_version = "1.3.2"
 # command = ""
 font = "Monospace 11"
@@ -158,20 +119,5 @@ start_fullscreen = false
 transparency = 0
 back_alpha = 26175
 FOE
-
-#maybe enter settings to /etc/skel manually? For new users...
-#will need .fluxbox files too
-#check for refs to liveuser
-rsync -aupr /home/liveuser/.config /etc/skel/
-rsync -aupr /home/liveuser/.fluxbox /etc/skel/
-chown -R root:root /etc/skel
-
-# this goes at the end after all other changes. 
-chown -R liveuser:liveuser /home/liveuser
-restorecon -R /home/liveuser
-
-EOF
-mount -t nfs4 localhost:/bkelly/ /mnt
-echo $(date -I)-fluxbox-spin  > /mnt/install/fluxbox
 
 %end
