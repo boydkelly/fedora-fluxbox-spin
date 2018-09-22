@@ -8,7 +8,6 @@
 %packages
 #-@
 #remove this for making key; then find out what individual packages needed for kvm
-@guest-desktop-agents
 
 @standard
 -@printing
@@ -17,12 +16,10 @@
 -@dial-up
 -@multimedia
 -@firefox
-@hardware-support
+-@hardware-support
 @anaconda-tools
 
 -abrt-*
--hyperv*
--open-vm-*
 -autofs
 -acpid
 -aspell-*
@@ -102,7 +99,8 @@ mailx
 libffi
 #system-config-printer
 #system-config-date
-
+#i3status error
+alsa-lib
 #
 libXtst
 libSM

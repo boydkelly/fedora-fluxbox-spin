@@ -1,0 +1,1 @@
+../common/vm-guest.ks
